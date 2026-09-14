@@ -1,4 +1,48 @@
-# TT-19 — **P0.** The fit test measures `maxHeight`, not the content
+# TT-19 — **P0.** Flip should maximise VISIBILITY; it currently compares against `maxHeight`
+
+> **CLOSED in `v-teleport-to` 1.1.0 (2026-09-14).** TT-17, TT-18 and TT-19 were
+> one defect and were fixed as one: `src/measure-host.ts` now takes the host's
+> extent as a single synchronous probe with the closed state, an inline
+> `display: none`, our own `max-height` clamp and the side coordinate all lifted
+> for the duration of the read, and the whole `style` attribute restored
+> verbatim afterwards. Verified in Chrome against `src` and `dist`:
+> `playground/scripts/interactions/v-teleport-to.mjs`, seven checks over cards 02,
+> 13 and 14, six of which fail against the pre-fix measurement — one of them
+> reporting the original symptom exactly, *13 of 36 words shown with
+> `fit: 'fits'`*. 836 unit tests (was 806), eight mutations of the fix each turn
+> the suite red — including one per forbidden measurement source. Both livelocks re-checked, not assumed: an arrow-bearing host
+> reports the same `contentHeight` on both sides while its `scrollHeight`
+> differs by 12px, and a host with a fractional natural height under a
+> whole-pixel clamp is stable across 60 forced recalcs.
+
+## The goal, in the owner's words (2026-09-13, from the live site)
+
+> "v-teleport-to needs to respect visibility better, isn't flip supposed to enable FLIP if it's
+> going to be visible at top instead of bottom?"
+
+**That is a better specification than the one this ticket was written against.** "Flip when it does
+not fit" was a proxy for "flip so more of it is visible", and the proxy is what is broken.
+
+The rule the library should implement, stated as an ordered ladder:
+1. The whole host is visible on the preferred side → **stay**.
+2. It is not, and the whole host would be visible on the opposite side → **flip**.
+3. Neither side shows all of it → **show the most of it**, and say so (`fit: 'neither'`,
+   `data-teleport-collapsed`).
+
+Rule 3 is already the comparative fallback; it just needs to be justified by visibility rather than
+by "there is no right answer". Rules 1 and 2 are the ones the current measurement gets wrong.
+
+**Worked example of the failure, which is exactly what the owner saw:** 300px of content, 250px
+below the reference, 500px above. `DEFAULT_MAX_HEIGHT` is 240, so `measureHostExtent` reports the
+host wants **240**. 250 ≥ 240, so the preferred side "fits" — the host stays below, is clamped to
+250, and **loses 50px of content while the side above would have shown all 300.** `fit` reports
+`'fits'`. Nothing signals a problem.
+
+**Everything else on the tab is confirmed good by the owner** — he tested the live site and this is
+his only finding. So the placement maths, the hide-when-hidden behaviour, the arrow, the boundary
+and scroll-container handling are all working. This is the one thing left.
+
+# Original ticket — the mechanism
 
 Raised by the owner from production use, 2026-09-13, and confirmed in the source:
 > "Do we rely on user setting the height in order to understand we need to flip?"

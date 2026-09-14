@@ -1,3 +1,22 @@
+# DOC-2 — ~~no `PROGRESS.md` entry for this session's work~~ **CLOSED, obsolete**
+
+**Closed 2026-09-13.** The owner asked for the per-package process artifacts to be removed:
+*"Can you remove AI level readme's in package if any? Like progress.md plan.md"*. All seven were
+deleted (2,028 lines of append-only run log across four packages), their 14 surviving open items
+rescued into `PACKAGE-BACKLOG.md`, and `CLAUDE.md` updated so it no longer mandates them.
+
+The record this ticket said was missing now lives where it should: `BOARD.md` for what is moving,
+`tickets/` for the briefs, `DESIGNS.md` for the verdicts and their measurements, and the git log
+for the narrative. None of that was true when the ticket was filed.
+
+**Root `PROGRESS.md` (591 lines) and `TASKS.md` (153) still exist** and were not in scope — the
+request said "in package". Worth a decision: the root run log has the same character as the ones
+just removed, and its status table is stale in several rows.
+
+---
+
+*Original ticket below.*
+
 # DOC-2 — no `PROGRESS.md` or `TASKS.md` entry exists for any of this session's work
 
 `CLAUDE.md` requires it: *"Update package's own `PROGRESS.md` (if exists) AND root `PROGRESS.md`

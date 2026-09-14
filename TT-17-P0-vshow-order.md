@@ -1,5 +1,20 @@
 # TT-17 — **P0.** The fit test never runs when `v-show` is written after the directive
 
+> **CLOSED in `v-teleport-to` 1.1.0 (2026-09-14).** TT-17, TT-18 and TT-19 were
+> one defect and were fixed as one: `src/measure-host.ts` now takes the host's
+> extent as a single synchronous probe with the closed state, an inline
+> `display: none`, our own `max-height` clamp and the side coordinate all lifted
+> for the duration of the read, and the whole `style` attribute restored
+> verbatim afterwards. Verified in Chrome against `src` and `dist`:
+> `playground/scripts/interactions/v-teleport-to.mjs`, seven checks over cards 02,
+> 13 and 14, six of which fail against the pre-fix measurement — one of them
+> reporting the original symptom exactly, *13 of 36 words shown with
+> `fit: 'fits'`*. 836 unit tests (was 806), eight mutations of the fix each turn
+> the suite red — including one per forbidden measurement source. Both livelocks re-checked, not assumed: an arrow-bearing host
+> reports the same `contentHeight` on both sides while its `scrollHeight`
+> differs by 12px, and a host with a fractional natural height under a
+> whole-pixel clamp is stable across 60 forced recalcs.
+
 Found by the **blind re-audit**, 2026-09-07 — in the fix that closed TT-15 hours earlier.
 **Reproduces against `dist`.**
 

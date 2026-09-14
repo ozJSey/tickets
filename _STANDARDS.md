@@ -10,16 +10,32 @@ cache** package, and to any package added after them.
 
 ## Non-negotiable
 
-1. **Vue first.** Not framework-agnostic-with-an-adapter. This settles the open question in
-   the write-behind survey — do not return "ship it as neutral TypeScript" as a
-   recommendation; design it Vue-first.
+1. **Vue first — with one settled exception.** Design Vue-first by default; do not return
+   "ship it as neutral TypeScript" as a *recommendation*. The original wording forbade
+   framework-agnostic-with-an-adapter outright and named the write-behind survey as the case
+   it settled. **The owner overturned that for write-behind specifically on 2026-09-14:**
+   *"Write behind doesn't really need to be Vue, make a typescript version of it as well, and
+   most ideally vue package uses the package"* — then *"Net new project for sure tho."* So
+   `@ozjsey/write-behind` is the engine and `@ozjsey/vue-write-behind` is an adapter over it,
+   by instruction, and it is **not** a violation of this standard.
+   The rule that survives: the split has to be earned. It was here because the state machine
+   already had no Vue in it — three of six modules moved untouched, and their 81 test
+   declarations imported no Vue at all. Do not propose an adapter split for a package whose
+   core is entangled with reactivity; propose it when the core is already sitting there
+   framework-free, or when the owner asks.
 2. **Same architecture.** `src/` split into single-purpose modules behind a thin re-export
    entry, plus an `ARCHITECTURE.md` naming the module map and the invariant the split
    protects. Rationale (`CLAUDE.md`): most people copy the source rather than install it,
    so the readability of the files *is* the distribution.
 3. **Typed.** Exported public types, no `@ts-ignore`, no casts, no defensive branches for
    states the types exclude.
-4. **Registered in the playground, with documentation — unless it genuinely cannot be.**
+4. **Every README links to the live site.** Owner, 2026-09-13. The canonical form is
+   `https://ozjsey.github.io/npm-portfolio-playground/#<library-id>` — the hash is the demo folder
+   name. A package exempt from having a tab links to the site index instead. This goes near the top
+   of the README, above the install line: for a published package the README is the npm page, and
+   the demo is the fastest way to understand what the package does.
+
+5. **Registered in the playground, with documentation — unless it genuinely cannot be.**
 
    Owner, 2026-09-06: *"everything needs to be in playground and well smoke tested except for
    obvious ones like dependency grouper, it simply is a file editor library."*
@@ -42,7 +58,13 @@ cache** package, and to any package added after them.
 5. **A `CHANGELOG.md`, honest and sourceable.** Publishing without one is not allowed; a version
    number nobody can decode is not a release. An entry describing behaviour that has not been
    independently confirmed is worse than a missing entry. See `tickets/DOCS-2-changelogs.md`.
-6. **Smoke tested, seriously.** Per the standing rule: a real-browser check that drives the
+6. **The documentation is a smoke test too.** Owner, 2026-09-13: *"We can treat documentation as
+   smoke test too."* The docs view is a rendered artifact like any card, so it is checked like one:
+   it renders for every package, its code samples run when pasted, its links resolve, and any claim
+   it makes is demonstrated somewhere a check can see. A README that documents a call which throws
+   — which happened in `v-select-text` — is a failing gate, not a docs chore. See `tickets/DOCS-3`.
+
+7. **Smoke tested, seriously.** Per the standing rule: a real-browser check that drives the
    behaviour and reads the result back out of the live DOM. No browser check -> reported
    UNPROVEN, never as passing. A red check beats a missing one.
 7. **Well reviewed.** Adversarial review pass over the finished implementation before it is

@@ -21,3 +21,29 @@ indicator reporting completion for work that never happened.
 - Browser regression, since this is a CSS-variable read on a real element.
 - Do not regress the settled-batch or fresh-zone cases, both of which the audit confirmed correct.
 - Baseline is 330 tests.
+
+---
+
+## RESOLVED — `@ozjsey/v-dropzone` 0.1.1, 2026-09-13
+
+Folded into the 0.1.1 state-machine patch, since both are the same question ("what is this zone
+showing, and does the reflection agree?") and the fix lives in the same three lines.
+
+**Decision: the vars clear on entering `rejected`** — the behaviour the README already promised —
+**unless files from an earlier batch are still in flight**, in which case they keep describing
+those live requests. A rejection that lands during a real upload is not a stale-value case, and
+blanking a moving progress bar for `rejectDuration` would have been a new defect of the same kind.
+
+`setState` (`src/state.ts`) now drops the progress snapshot when the resolved state is `idle`, or
+`rejected` with nothing unsettled in the snapshot.
+
+A second fix fell out of the same read: the `rejected` auto-clear forced the zone to `idle`, which
+reported an upload the rejection had interrupted as finished. It now hands back to
+`nonDragRestState`, so the zone returns to `uploading` (or a sticky `error`) if that is what it
+actually is.
+
+- Unit: three tests in `vDropzone.test.ts` — the stale-value case, the live-upload case, and the
+  auto-clear restoring `uploading`.
+- Browser: `09-css-progress.vue` → "DZ-4: a rejected drop clears progress vars left by a settled
+  batch", which also asserts the auto-clear returns to the sticky `error`.
+- Neither the settled-batch nor the fresh-zone case regressed (both were already covered).
